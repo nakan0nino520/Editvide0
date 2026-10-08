@@ -12,75 +12,214 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="stylesheet" href="css/style.css">
-<title>Video</title>
+<title>Video Pro 4.0</title>
 </head>
 <body>
     <div class="app">
         <div class="header">
             <h1>Video</h1>
-            <span class="badge">iOS Style</span>
+            <span class="badge">PRO 4.0</span>
         </div>
 
-        <div class="player">
-            <video id="video" playsinline webkit-playsinline preload="metadata"></video>
+        <!-- PLAYER -->
+        <div class="player" id="player">
+            <video id="video" playsinline webkit-playsinline preload="metadata" crossorigin="anonymous"></video>
             <div class="empty-state" id="emptyState">
                 <div class="empty-icon">
                     <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                 </div>
                 <div class="empty-title">Chưa có video</div>
-                <div class="empty-sub">Nhấn "Tải video" để bắt đầu</div>
+                <div class="empty-sub">Nhấn "Tải video" hoặc kéo thả tệp</div>
             </div>
+            <div class="drag-overlay" id="dragOverlay">
+                <div class="drag-text">Thả video vào đây</div>
+            </div>
+            <div class="hud" id="hud"></div>
+            <div class="toast" id="toast"></div>
+            <div class="countdown" id="countdown"></div>
         </div>
 
+        <!-- PROGRESS -->
         <div class="progress-wrap">
             <span class="time" id="timeCurrent">00:00</span>
             <div class="progress-bar" id="progressBar">
                 <div class="progress-fill" id="progressFill"></div>
+                <div class="ab-marker" id="abStart"></div>
+                <div class="ab-marker" id="abEnd"></div>
             </div>
             <span class="time right" id="timeTotal">00:00</span>
         </div>
 
+        <!-- CONTROL CHÍNH -->
         <div class="controls">
-            <button class="ctrl" id="btnRewind" aria-label="Lùi 10 giây">
+            <button class="ctrl" id="btnRewind">
                 <svg viewBox="0 0 24 24"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg>
-                <span>Lùi 10s</span>
+                <span id="labelRewind">Lùi 10s</span>
             </button>
-            <button class="ctrl primary" id="btnPlay" aria-label="Phát">
+            <button class="ctrl primary" id="btnPlay">
                 <svg id="iconPlay" viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21 6 3"/></svg>
                 <span id="labelPlay">Phát</span>
             </button>
-            <button class="ctrl" id="btnForward" aria-label="Tới 10 giây">
+            <button class="ctrl" id="btnForward">
                 <svg viewBox="0 0 24 24"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
-                <span>Tới 10s</span>
+                <span id="labelForward">Tới 10s</span>
             </button>
-            <button class="ctrl" id="btnFullscreen" aria-label="Toàn màn hình">
+            <button class="ctrl" id="btnFullscreen">
                 <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
                 <span>Toàn m.h</span>
             </button>
         </div>
 
+        <!-- TABS -->
+        <div class="tabs">
+            <button class="tab active" data-tab="play">Phát</button>
+            <button class="tab" data-tab="color">Màu</button>
+            <button class="tab" data-tab="sub">Phụ đề</button>
+            <button class="tab" data-tab="tools">Công cụ</button>
+            <button class="tab" data-tab="list">DS phát</button>
+        </div>
+
+        <!-- TAB: PHÁT -->
+        <div class="tab-content active" id="tab-play">
+            <div class="grid-5">
+                <button class="ctrl-sm" id="btnSpeed">1.0x</button>
+                <button class="ctrl-sm" id="btnMute">🔊</button>
+                <button class="ctrl-sm" id="btnLoop">↻ Lặp</button>
+                <button class="ctrl-sm" id="btnAB">A-B</button>
+                <button class="ctrl-sm" id="btnPiP">PiP</button>
+            </div>
+            <div class="grid-5">
+                <button class="ctrl-sm" id="btnRotate">⟳ Xoay</button>
+                <button class="ctrl-sm" id="btnFlipH">↔ Lật</button>
+                <button class="ctrl-sm" id="btnFlipV">↕ Lật</button>
+                <button class="ctrl-sm" id="btnSleep">⏱ Hẹn</button>
+                <button class="ctrl-sm" id="btnReset">↺ Đặt lại</button>
+            </div>
+            <div class="slider-wrap show" id="volumeWrap">
+                <span class="slider-label">Âm lượng</span>
+                <input type="range" id="volumeSlider" min="0" max="2" step="0.05" value="1">
+                <span class="slider-value" id="volValue">100%</span>
+            </div>
+        </div>
+
+        <!-- TAB: MÀU -->
+        <div class="tab-content" id="tab-color">
+            <div class="slider-wrap show">
+                <span class="slider-label">Sáng</span>
+                <input type="range" id="brightnessSlider" min="0" max="300" step="5" value="100">
+                <span class="slider-value" id="brightnessValue">100%</span>
+            </div>
+            <div class="slider-wrap show">
+                <span class="slider-label">Tương phản</span>
+                <input type="range" id="contrastSlider" min="0" max="300" step="5" value="100">
+                <span class="slider-value" id="contrastValue">100%</span>
+            </div>
+            <div class="slider-wrap show">
+                <span class="slider-label">Bão hòa</span>
+                <input type="range" id="saturationSlider" min="0" max="300" step="5" value="100">
+                <span class="slider-value" id="saturationValue">100%</span>
+            </div>
+            <div class="slider-wrap show">
+                <span class="slider-label">Độ mờ</span>
+                <input type="range" id="blurSlider" min="0" max="20" step="0.5" value="0">
+                <span class="slider-value" id="blurValue">0px</span>
+            </div>
+            <div class="slider-wrap show">
+                <span class="slider-label">Sepia</span>
+                <input type="range" id="sepiaSlider" min="0" max="100" step="5" value="0">
+                <span class="slider-value" id="sepiaValue">0%</span>
+            </div>
+            <div class="slider-wrap show">
+                <span class="slider-label">Xám</span>
+                <input type="range" id="graySlider" min="0" max="100" step="5" value="0">
+                <span class="slider-value" id="grayValue">0%</span>
+            </div>
+            <div class="grid-5">
+                <button class="ctrl-sm" id="btnFilterNone">Gốc</button>
+                <button class="ctrl-sm" id="btnFilterCinema">Điện ảnh</button>
+                <button class="ctrl-sm" id="btnFilterVivid">Rực rỡ</button>
+                <button class="ctrl-sm" id="btnFilterWarm">Ấm</button>
+                <button class="ctrl-sm" id="btnFilterCool">Lạnh</button>
+            </div>
+        </div>
+
+        <!-- TAB: PHỤ ĐỀ -->
+        <div class="tab-content" id="tab-sub">
+            <div class="grid-5">
+                <button class="ctrl-sm" id="btnSubLoad">Tải CC</button>
+                <button class="ctrl-sm" id="btnSubToggle">Bật CC</button>
+                <button class="ctrl-sm" id="btnSubSizeUp">A+</button>
+                <button class="ctrl-sm" id="btnSubSizeDown">A-</button>
+                <button class="ctrl-sm" id="btnSubColor">Màu</button>
+            </div>
+            <div class="slider-wrap show">
+                <span class="slider-label">Cỡ chữ</span>
+                <input type="range" id="subSizeSlider" min="12" max="48" step="2" value="20">
+                <span class="slider-value" id="subSizeValue">20px</span>
+            </div>
+            <div class="slider-wrap show">
+                <span class="slider-label">Vị trí</span>
+                <input type="range" id="subPosSlider" min="0" max="100" step="5" value="90">
+                <span class="slider-value" id="subPosValue">90%</span>
+            </div>
+        </div>
+
+        <!-- TAB: CÔNG CỤ -->
+        <div class="tab-content" id="tab-tools">
+            <div class="grid-5">
+                <button class="ctrl-sm" id="btnSnapshot">📷 Ảnh</button>
+                <button class="ctrl-sm" id="btnRecordAudio">🎙 Ghi âm</button>
+                <button class="ctrl-sm" id="btnRecordScreen">⏺ Ghi MH</button>
+                <button class="ctrl-sm" id="btnShare">📤 Chia sẻ</button>
+                <button class="ctrl-sm" id="btnDownload">⬇ Tải</button>
+            </div>
+            <div class="grid-5">
+                <button class="ctrl-sm" id="btnBookmark">🔖 Đánh dấu</button>
+                <button class="ctrl-sm" id="btnNote">📝 Ghi chú</button>
+                <button class="ctrl-sm" id="btnInfo">ℹ Thông tin</button>
+                <button class="ctrl-sm" id="btnFrameGrab">🎞 Khung</button>
+                <button class="ctrl-sm" id="btnResetAll">🗑 Xóa hết</button>
+            </div>
+        </div>
+
+        <!-- TAB: DANH SÁCH PHÁT -->
+        <div class="tab-content" id="tab-list">
+            <div class="playlist-header">
+                <span style="font-size:12px;color:var(--text-2)">Danh sách phát</span>
+                <button class="btn-clear" id="btnClearList">Xóa hết</button>
+            </div>
+            <div class="playlist" id="playlist">
+                <div class="playlist-empty">Chưa có video nào</div>
+            </div>
+            <div class="playlist-header" style="border-top:1px solid var(--border)">
+                <span style="font-size:12px;color:var(--text-2)">Lịch sử xem</span>
+                <button class="btn-clear" id="btnClearHistory">Xóa</button>
+            </div>
+            <div class="playlist" id="history"></div>
+        </div>
+
+        <!-- HÀNG TẢI -->
         <div class="upload-row">
             <label class="upload-btn" for="fileInput">
                 <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                 Tải video
             </label>
-            <input type="file" id="fileInput" accept="video/*">
-            <button class="upload-btn" id="btnSnapshot">
-                <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                Chụp ảnh
-            </button>
+            <input type="file" id="fileInput" accept="video/*" multiple>
+            <label class="upload-btn" for="imgInput">
+                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                Ảnh
+            </label>
+            <input type="file" id="imgInput" accept="image/*" multiple>
         </div>
 
-        <div class="hint">MP4 · WebM · Ogg · Hoạt động offline</div>
+        <div class="hint">Phiên bản 4.0 · 50+ tính năng · Hoạt động offline</div>
     </div>
 
     <script src="js/app.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').catch(() => {});
-            });
+            window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
         }
     </script>
 </body>
-              </html>
+</html>
