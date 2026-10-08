@@ -1,1 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Video">
+<meta name="theme-color" content="#000000">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/style.css">
+<title>Video</title>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <h1>Video</h1>
+            <span class="badge">iOS Style</span>
+        </div>
 
+        <div class="player">
+            <video id="video" playsinline webkit-playsinline preload="metadata"></video>
+            <div class="empty-state" id="emptyState">
+                <div class="empty-icon">
+                    <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                </div>
+                <div class="empty-title">Chưa có video</div>
+                <div class="empty-sub">Nhấn "Tải video" để bắt đầu</div>
+            </div>
+        </div>
+
+        <div class="progress-wrap">
+            <span class="time" id="timeCurrent">00:00</span>
+            <div class="progress-bar" id="progressBar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <span class="time right" id="timeTotal">00:00</span>
+        </div>
+
+        <div class="controls">
+            <button class="ctrl" id="btnRewind" aria-label="Lùi 10 giây">
+                <svg viewBox="0 0 24 24"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg>
+                <span>Lùi 10s</span>
+            </button>
+            <button class="ctrl primary" id="btnPlay" aria-label="Phát">
+                <svg id="iconPlay" viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                <span id="labelPlay">Phát</span>
+            </button>
+            <button class="ctrl" id="btnForward" aria-label="Tới 10 giây">
+                <svg viewBox="0 0 24 24"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+                <span>Tới 10s</span>
+            </button>
+            <button class="ctrl" id="btnFullscreen" aria-label="Toàn màn hình">
+                <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+                <span>Toàn m.h</span>
+            </button>
+        </div>
+
+        <div class="upload-row">
+            <label class="upload-btn" for="fileInput">
+                <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Tải video
+            </label>
+            <input type="file" id="fileInput" accept="video/*">
+            <button class="upload-btn" id="btnSnapshot">
+                <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                Chụp ảnh
+            </button>
+        </div>
+
+        <div class="hint">MP4 · WebM · Ogg · Hoạt động offline</div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(() => {});
+            });
+        }
+    </script>
+</body>
+              </html>
